@@ -1,0 +1,55 @@
+# analysis-api service — Phase 6 deployment definition (NOT deployed in Phase 0/1)
+#
+# This describes how the service will run on platform-01. It is committed now so
+# the contract evolves with the code, but no server is touched in this phase.
+name: analysis-api
+
+services:
+  analysis-api:
+    image: ghcr.io/${IMAGE_OWNER:-you}/analysis-api:${IMAGE_TAG:-dev}
+    build:
+      context: ../../services/analysis-api
+      target: runtime
+    restart: unless-stopped
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      LLM_BASE_URL: ${LLM_BASE_URL:-https://openrouter.ai/api/v1}
+      LLM_REQUEST_TIMEOUT_S: ${LLM_REQUEST_TIMEOUT_S:-120}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+      RATE_LIMIT_PER_MINUTE: ${RATE_LIMIT_PER_MINUTE:-60}
+      REDIS_URL: ${REDIS_URL}
+      OTEL_ENDPOINT: ${OTEL_ENDPOINT:-}
+      OTEL_SERVICE_NAME: analysis-api
+    # Secrets come from Infisical at deploy time — never committed.
+    secrets:
+      - llm_api_key_code
+      - llm_api_key_eval
+    networks:
+      - trading-app
+      - trading-data
+    ports:
+      - "127.0.0.1:${ANALYSIS_PORT:-8000}:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+          cpus: "2.0"
+
+secrets:
+  llm_api_key_code:
+    environment: LLM_API_KEY_CODE
+  llm_api_key_eval:
+    environment: LLM_API_KEY_EVAL
+
+networks:
+  trading-app:
+    external: true
+  trading-data:
+    external: true

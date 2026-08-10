@@ -1,0 +1,39 @@
+# --- Global ignores ---
+.DS_Store
+*.log
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+*.pyc
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# --- JavaScript / Node ---
+node_modules/
+.next/
+out/
+dist/
+build/
+*.tsbuildinfo
+npm-debug.log*
+yarn-error.log*
+
+# --- Python ---
+.vscode/
+.idea/
+.ruff_cache/
+
+# --- Terraform / secrets ---
+*.tfstate
+*.tfstate.*
+.gitleaks.toml.leaked
+
+# --- OTel / observability local artifacts ---
+otel-collector-data/
+*.tmp.json

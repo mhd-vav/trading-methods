@@ -1,0 +1,22 @@
+# analysis-api — pinned dependencies (normalized from Hostinger import)
+fastapi==0.141.1
+uvicorn[standard]==0.52.1
+langchain-openai==1.4.1
+langgraph==1.2.10
+langchain-core==1.5.3
+python-dotenv==1.2.2
+pydantic==2.13.4
+pydantic-settings==2.14.2
+typing-extensions==4.16.0
+httpx==0.28.1
+redis==8.1.0
+
+# --- test / lint / type (dev) ---
+pytest==8.4.2
+ruff==0.11.8
+mypy==1.15.0   # optional; used by CI python type check
+
+# --- OpenTelemetry (optional runtime; only used when OTEL_ENDPOINT is set) ---
+opentelemetry-api==1.31.1
+opentelemetry-sdk==1.31.1
+opentelemetry-exporter-otlp-proto-grpc==1.31.1
