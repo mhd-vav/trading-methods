@@ -104,15 +104,20 @@ jobs:
       - run: npx eslint .
       - run: npm run build
 
-  # --- C++ engine (starts when packages/market-profile-core is imported) ---
+  # --- C++ engine (Market Profile / Volume Profile core) ---
   cpp:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: packages/market-profile-core
-    if: ${{ hashFiles('packages/market-profile-core/CMakeLists.txt') != '' }}
+    if: ${{ hashFiles('packages/market-profile-core/Makefile') != '' }}
     steps:
       - uses: actions/checkout@v4
-      - run: cmake -B build -DCMAKE_BUILD_TYPE=Release
-      - run: cmake --build build
-      - run: ctest --test-dir build --output-on-failure
+      - name: Install g++ 13+ (C++20)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq g++-13
+      - name: Build
+        run: make all CXX=g++-13
+      - name: Run tests
+        run: make test CXX=g++-13

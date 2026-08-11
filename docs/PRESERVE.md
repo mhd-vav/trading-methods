@@ -62,7 +62,14 @@ constraint.
 | Item | Path (local) | Why it matters |
 |---|---|---|
 | Dirty Next.js checkout | `C:\Users\TempUser\Projects\Trading_Project` (branch `feat/telegram-miniapp-mvp`, commit `6ccd3d8`) | ~14 modified + ~24 untracked files (charting, journal, BRS, drawing, backtesting, QuantConnect) not yet safely in git |
-| C++ Market Profile engine | nested repo under the same checkout | 13 passing tests; needs reconciliation into `packages/market-profile-core` |
+
+### RESOLVED (2026-08-11): C++ Market Profile engine integrated
+
+The `trading-mp-engine` repo (C++20 Market Profile / Volume Profile engine,
+1,399 lines, 17 files) has been integrated into `packages/market-profile-core/`.
+All 13 golden-fixture tests pass (8 profile engine + 5 risk). Builds clean
+under g++ 14.2 with `-Wall -Wextra -Wpedantic`. No external dependencies.
+The placeholder README has been replaced with the actual engine source.
 | Windows-side vault plan file | `C:\Users\TempUser\Vault\AITRADINGDESK WEBSITE\Audit conclusion.md` | the audit that drove this plan |
 | `apps/web` (Next.js) | local checkout | Phase 2/5 refactor source — **not yet in this repo** (empty placeholder) |
 
