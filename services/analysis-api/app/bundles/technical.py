@@ -7,7 +7,7 @@ THESIS_PROMPT = """You are a Trend-continuation analyst for {asset} ({asset_clas
 Argue WHY the current trend will continue.
 
 Market data:
-{market_data}
+{context}
 
 Analyze: MAs, structure (HH/HL or LH/LL), momentum indicators.
 1. Is the trend UP or DOWN?
@@ -20,7 +20,7 @@ ANTITHESIS_PROMPT = """You are a Mean-reversion analyst for {asset} ({asset_clas
 Argue WHY the current move is overextended and will revert.
 
 Market data:
-{market_data}
+{context}
 
 The trend analyst argues:
 {thesis}
@@ -34,7 +34,7 @@ Format: STANCE: X.XX | CONFIDENCE: X.XX | RATIONALE: ..."""
 
 REFEREE_PROMPT = """You are the Structure referee for {asset} ({asset_class}), timeframe {timeframe}.
 Market data:
-{market_data}
+{context}
 
 Trend-continuation argues:
 {thesis}

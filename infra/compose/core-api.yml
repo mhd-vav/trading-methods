@@ -1,0 +1,44 @@
+# core-api service — Phase 5 persistence layer deployment definition
+#
+# Describes how the service will run on platform-01. Committed now so the
+# contract evolves with the code; no server is touched in this phase.
+name: core-api
+
+services:
+  core-api:
+    image: ghcr.io/${IMAGE_OWNER:-you}/core-api:${IMAGE_TAG:-dev}
+    build:
+      context: ../../services/core-api
+      target: runtime
+    restart: unless-stopped
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      DATABASE_URL: ${DATABASE_URL}
+      JWT_SECRET: ${JWT_SECRET}
+      ACCESS_TOKEN_TTL_MINUTES: ${ACCESS_TOKEN_TTL_MINUTES:-60}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+      OTEL_ENDPOINT: ${OTEL_ENDPOINT:-}
+      OTEL_SERVICE_NAME: core-api
+    networks:
+      - trading-app
+      - trading-data
+    ports:
+      - "127.0.0.1:${CORE_API_PORT:-8001}:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+          cpus: "1.0"
+
+networks:
+  trading-app:
+    external: true
+  trading-data:
+    external: true

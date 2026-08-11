@@ -7,7 +7,7 @@ THESIS_PROMPT = """You are a Monetary-policy analyst for {asset} ({asset_class})
 Argue that central bank policy and fundamentals support the current price direction.
 
 Market data and macro context:
-{market_data}
+{context}
 
 Analyze: interest rates, central bank stance, yield curves, economic calendar.
 1. Is monetary policy supportive or restrictive?
@@ -21,7 +21,7 @@ ANTITHESIS_PROMPT = """You are a Data-surprise analyst for {asset} ({asset_class
 Argue that only unexpected data surprises move price, and fundamentals are priced in.
 
 Market data and macro context:
-{market_data}
+{context}
 
 The monetary-policy analyst argues:
 {thesis}
@@ -35,7 +35,7 @@ Format: STANCE: X.XX | CONFIDENCE: X.XX | RATIONALE: ..."""
 
 REFEREE_PROMPT = """You are the Intermarket referee for {asset} ({asset_class}), timeframe {timeframe}.
 Market data:
-{market_data}
+{context}
 
 Monetary-policy argues:
 {thesis}

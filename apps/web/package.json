@@ -1,0 +1,27 @@
+{
+  "name": "@trading-desk/web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Next.js UI and BFF routes (Phase 2/5).",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@trading-desk/chart-core": "^0.1.0",
+    "@trading-desk/contracts": "^0.1.0",
+    "echarts": "^6.1.0",
+    "next": "^16.2.10",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "jsdom": "^25.0.1",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.8"
+  },
+  "license": "UNLICENSED"
+}

@@ -7,7 +7,7 @@ THESIS_PROMPT = """You are a Sentiment-confirmation analyst for {asset} ({asset_
 Argue that current sentiment and positioning confirm the price move.
 
 Market data and sentiment context:
-{market_data}
+{context}
 
 Analyze: social sentiment, funding rates, long/short ratios, COT data.
 1. Is crowd sentiment aligned with price direction?
@@ -21,7 +21,7 @@ ANTITHESIS_PROMPT = """You are a Contrarian analyst for {asset} ({asset_class}),
 Argue that sentiment is too crowded and a reversal is likely.
 
 Market data and sentiment context:
-{market_data}
+{context}
 
 The confirmation analyst argues:
 {thesis}
@@ -35,7 +35,7 @@ Format: STANCE: X.XX | CONFIDENCE: X.XX | RATIONALE: ..."""
 
 REFEREE_PROMPT = """You are the Positioning referee for {asset} ({asset_class}), timeframe {timeframe}.
 Market data:
-{market_data}
+{context}
 
 Confirmation argues:
 {thesis}

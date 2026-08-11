@@ -7,7 +7,7 @@ THESIS_PROMPT = """You are a Statistical-edge analyst for {asset} ({asset_class}
 Argue that statistical evidence supports a directional trade.
 
 Statistical data and backtest context:
-{market_data}
+{context}
 
 Analyze: backtested patterns, statistical anomalies, correlation analysis.
 1. What statistical edge exists?
@@ -21,7 +21,7 @@ ANTITHESIS_PROMPT = """You are the Overfit-skeptic (red team) for {asset} ({asse
 Attack the statistical edge claim. Find every reason it might be overfit or regime-dependent.
 
 Statistical data and backtest context:
-{market_data}
+{context}
 
 The statistical-edge analyst argues:
 {thesis}
@@ -36,7 +36,7 @@ Format: STANCE: X.XX | CONFIDENCE: X.XX | RATIONALE: ..."""
 
 REFEREE_PROMPT = """You are the Seasonality/ML referee for {asset} ({asset_class}), timeframe {timeframe}.
 Statistical data:
-{market_data}
+{context}
 
 Statistical-edge argues:
 {thesis}

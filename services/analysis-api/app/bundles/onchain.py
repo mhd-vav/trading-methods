@@ -7,7 +7,7 @@ THESIS_PROMPT = """You are an Exchange-flow analyst for {asset} (crypto), timefr
 Argue that exchange inflows/outflows signal the next price direction.
 
 On-chain data:
-{market_data}
+{context}
 
 Analyze: exchange reserves, net flows, whale movements, stablecoin flows.
 1. Are coins flowing into exchanges (bearish) or out (bullish)?
@@ -21,7 +21,7 @@ ANTITHESIS_PROMPT = """You are a Holder-accumulation analyst for {asset} (crypto
 Argue that long-term holder behavior overrides short-term exchange flows.
 
 On-chain data:
-{market_data}
+{context}
 
 The exchange-flow analyst argues:
 {thesis}
@@ -35,7 +35,7 @@ Format: STANCE: X.XX | CONFIDENCE: X.XX | RATIONALE: ..."""
 
 REFEREE_PROMPT = """You are the On-chain referee for {asset} (crypto), timeframe {timeframe}.
 On-chain data:
-{market_data}
+{context}
 
 Exchange-flow argues:
 {thesis}

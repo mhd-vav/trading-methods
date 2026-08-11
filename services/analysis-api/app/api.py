@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import time
 import uuid
+from typing import Any
 
 from fastapi import FastAPI, Request
 from pydantic import BaseModel, Field
@@ -54,6 +55,10 @@ class AnalysisRequest(BaseModel):
     timeframe: str = "4h"
     market_data: str = ""
     include_onchain: bool | None = None
+    # Phase 4: optional structured evidence snapshot (else built from market_data)
+    snapshot: dict[str, Any] | None = None
+    # Phase 4: idempotency — retries with the same key return the stored result
+    idempotency_key: str | None = None
 
 
 # --- Dependency probes --------------------------------------------------------
@@ -114,15 +119,27 @@ async def analyze(req: AnalysisRequest, request: Request = None):
         )
 
     from app.engine import run_analysis
+    from app.evidence import EvidenceSnapshot
 
     started = time.time()
     try:
+        # Accept a structured snapshot (re-derives id if missing) or build from market_data.
+        snapshot = None
+        if req.snapshot:
+            try:
+                snapshot = EvidenceSnapshot.create(**req.snapshot)
+            except Exception as e:
+                log.warning("snapshot_invalid", error=str(e)[:500])
+                raise ApiError(400, "invalid_snapshot", "snapshot payload is invalid") from None
         result = run_analysis(
             asset=req.asset,
             asset_class=req.asset_class,
             timeframe=req.timeframe,
-            market_data=req.market_data or "No market data provided - analyze based on general knowledge.",
+            market_data=req.market_data or "",
             include_onchain=req.include_onchain,
+            snapshot=snapshot,
+            idempotency_key=req.idempotency_key,
+            run_id=run_id,
         )
     except ApiError as e:
         raise e

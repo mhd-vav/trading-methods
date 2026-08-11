@@ -1,0 +1,172 @@
+# Trading Desk — full-stack compose (Phase 6)
+#
+# Orchestrates all services for local dev and production parity.
+# Per-service compose files live in infra/compose/ for selective `docker compose -f`.
+#
+# Usage (local dev):
+#   docker compose up -d postgres redis
+#   docker compose up -d core-api analysis-api web
+#
+# Secrets: in production, inject via Infisical or `--env-file .env.production`.
+# Never commit real secrets.
+
+services:
+  # --- Data layer ---
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-tradingdesk}
+      POSTGRES_USER: ${POSTGRES_USER:-td}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-td} -d ${POSTGRES_DB:-tradingdesk}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - trading-data
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports:
+      - "127.0.0.1:6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - trading-data
+
+  # --- Edge ---
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    volumes:
+      - ./infra/edge/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "127.0.0.1:8080:80"
+    depends_on:
+      - core-api
+      - analysis-api
+      - web
+    networks:
+      - trading-app
+
+  # --- APIs ---
+  core-api:
+    build:
+      context: ./services/core-api
+      target: runtime
+    restart: unless-stopped
+    environment:
+      APP_ENV: ${APP_ENV:-development}
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-td}:${POSTGRES_PASSWORD:-changeme}@postgres:5432/${POSTGRES_DB:-tradingdesk}
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+      ACCESS_TOKEN_TTL_MINUTES: ${ACCESS_TOKEN_TTL_MINUTES:-60}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8001:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    networks:
+      - trading-app
+      - trading-data
+
+  analysis-api:
+    build:
+      context: ./services/analysis-api
+      target: runtime
+    restart: unless-stopped
+    environment:
+      APP_ENV: ${APP_ENV:-development}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      LLM_BASE_URL: ${LLM_BASE_URL:-https://openrouter.ai/api/v1}
+      LLM_REQUEST_TIMEOUT_S: ${LLM_REQUEST_TIMEOUT_S:-120}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000}
+      RATE_LIMIT_PER_MINUTE: ${RATE_LIMIT_PER_MINUTE:-60}
+      REDIS_URL: redis://redis:6379
+      LLM_API_KEY_CODE: ${LLM_API_KEY_CODE}
+      LLM_API_KEY_EVAL: ${LLM_API_KEY_EVAL}
+    depends_on:
+      redis:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    networks:
+      - trading-app
+      - trading-data
+
+  # --- Web (Next.js) ---
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      NEXT_PUBLIC_CORE_API: ${NEXT_PUBLIC_CORE_API:-http://localhost:8001}
+      NEXT_PUBLIC_ANALYSIS_API: ${NEXT_PUBLIC_ANALYSIS_API:-http://localhost:8000}
+    depends_on:
+      - core-api
+      - analysis-api
+    ports:
+      - "127.0.0.1:3000:3000"
+    networks:
+      - trading-app
+
+  # --- Worker ---
+  market-ingestion:
+    build:
+      context: .
+      dockerfile: workers/market-ingestion/Dockerfile
+    restart: unless-stopped
+    environment:
+      REDIS_URL: redis://redis:6379
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      INGESTION_SYMBOLS: ${INGESTION_SYMBOLS:-BTC/USDT,ETH/USDT,SOL/USDT}
+      INGESTION_INTERVAL_MS: ${INGESTION_INTERVAL_MS:-60000}
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - trading-data
+
+  # --- Observability ---
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    restart: unless-stopped
+    volumes:
+      - ./infra/monitoring/otel-collector.yaml:/etc/otelcol/config.yaml:ro
+    ports:
+      - "127.0.0.1:4317:4317"
+    networks:
+      - trading-app
+      - trading-data
+
+volumes:
+  pgdata:
+
+networks:
+  trading-app:
+  trading-data:

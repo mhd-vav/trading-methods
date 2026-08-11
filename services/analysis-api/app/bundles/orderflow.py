@@ -7,7 +7,7 @@ THESIS_PROMPT = """You are a Participation/confirmation analyst for {asset} ({as
 Argue that the current price move is backed by real order flow.
 
 Market data:
-{market_data}
+{context}
 
 Analyze: volume profile, cumulative delta, order book imbalance.
 1. Is volume confirming the price move?
@@ -21,7 +21,7 @@ ANTITHESIS_PROMPT = """You are an Absorption/fakeout analyst for {asset} ({asset
 Argue that the price move is being absorbed by resting liquidity (fakeout).
 
 Market data:
-{market_data}
+{context}
 
 The participation analyst argues:
 {thesis}
@@ -35,7 +35,7 @@ Format: STANCE: X.XX | CONFIDENCE: X.XX | RATIONALE: ..."""
 
 REFEREE_PROMPT = """You are the Imbalance referee for {asset} ({asset_class}), timeframe {timeframe}.
 Market data:
-{market_data}
+{context}
 
 Participation argues:
 {thesis}

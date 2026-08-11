@@ -1,0 +1,24 @@
+{
+  "name": "@trading-desk/provider-adapters",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Provider adapters with strict normalized outputs: CoinGecko, Forex, retries, timeouts, circuit breaker.",
+  "types": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./resilience": "./src/resilience.ts",
+    "./quality": "./src/quality.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@trading-desk/contracts": "^0.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.8"
+  },
+  "license": "UNLICENSED"
+}

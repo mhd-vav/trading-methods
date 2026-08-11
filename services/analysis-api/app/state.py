@@ -33,6 +33,11 @@ class TradingDeskState(MessagesState):
     timeframe: str  # e.g. "4h", "1d"
     trade_date: str  # YYYY-MM-DD
 
+    # Evidence snapshot (Phase 4): immutable reference, not free-form market text
+    snapshot_id: str
+    prompt_version: str = "v1"
+    model_policy_version: str = "v1"
+
     # Regime (determined before bundle execution)
     regime: RegimeType
     regime_rationale: str
